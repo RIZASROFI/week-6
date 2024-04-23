@@ -1,0 +1,83 @@
+from networkconfiguration import configuration
+
+def main():
+    choice = ""
+    list_configuration = []
+    list_device = []
+
+    while choice != "5":
+        print("Welcome To Network Configuration")
+        print("What you want to do?")
+        print("1. Input Configuration")
+        print("2. Display the Configuration List")
+        print("3. Input device")
+        print("4. Displays device")
+        print("5. quit program")
+
+        choice = input("Input Choice: ")
+
+        if choice == "1":
+            try:
+                config_object = configuration.Configuration()
+
+                subnet = input("Input subnet: ")
+                if subnet != "255.255.255.0":
+                    raise ValueError("Subnet mask must be 255.255.255.0")
+
+                config_object.save_information(subnet, "subnet")
+
+                gateway = input("Input gateway: ")
+                config_object.validate(gateway, "gateway")
+                config_object.save_information(gateway, "gateway")
+
+                ip_address = input("Input IP address: ")
+                config_object.validate(ip_address, "ipaddress")
+                config_object.save_information(ip_address, "ipaddress")
+
+                already_available = any(config.ip_address == ip_address for config in list_configuration)
+                if already_available:
+                    raise ValueError("IP address is already in the configuration!")
+
+                list_configuration.append(config_object)
+                print("Successfully added IP!")
+
+            except ValueError:
+                print("Invalid Input: {e}")
+
+        elif choice == "2":
+            print("|    Subnet    |    Gateway    |    IP address    |")
+            if list_configuration:
+                for config in list_configuration:
+                    config.show_information()
+            else:
+                print("No configuration yet!")
+
+        elif choice == "3":
+            try:
+                ip_address = input("Input IP address: ")
+                config_object = next((config for config in list_configuration if config.ip_address == ip_address), None)
+
+                if config_object is None:
+                    raise ValueError("IP address not found!")
+
+                device_name = input("Input device name: ")
+                device_type = input("Input device type: ")
+
+                config_object.used = True
+                network_device_object = configuration.NetworkDevice(device_name, device_type, config_object)
+                list_device.append(network_device_object)
+                print("Added Successfully device!")
+
+            except ValueError as e:
+                print(e)
+
+        elif choice == "4":
+            print("|    Device Name    |    Device Type    "
+                  "|    Subnet    |    Gateway    |    IP address    |")
+            if list_device:
+                for device in list_device:
+                    device.display_information()
+            else:
+                print("No device yet!")
+
+main()

@@ -1,0 +1,137 @@
+class Configuration:
+    """
+    The Configuration class stores network configuration information such as IP address, gateway, and subnet.
+
+    Attributes:
+    - ipaddress: A string that stores the IP address.
+    - gateway: A string that stores the gateway address.
+    - subnet: A string that stores the subnet address.
+    - used: A boolean indicating whether the configuration has been used by a device.
+    """
+
+    def init(self):
+        self.ip_address = ""
+        self.gateway = ""
+        self.subnet = ""
+        self.used = False
+
+    def validate(self, data, data_type):
+        """
+        Validate data based on its type (IP address, subnet, or gateway).
+
+        Parameters:
+        - data: The data (string) to be validated.
+        - data_type: The type of data ('ipaddress', 'subnet', 'gateway') to determine the validation process.
+
+        Returns:
+        - Boolean: True if data is valid, False otherwise.
+        """
+        if data_type == "ipaddress":
+            ip_split = data.split(".")
+            gateway_split = self.gateway.split(".")
+
+            ip_subnet = ip_split[:-1]
+            gateway_subnet = gateway_split[:-1]
+
+            if ip_subnet == gateway_subnet:
+                last_digit = int(ip_split[-1])
+
+                if 0 < last_digit < 255:
+                    if data == self.gateway:
+                        raise ValueError("IP address cannot be the same as the gateway!")
+                    return True
+                else:
+                    raise ValueError("IP address last digit must be between 1 and 254")
+            else:
+                raise ValueError("Invalid subnet IP address")
+
+        if data_type == "subnet":
+            if data == "255.255.255.0":
+                return True
+            else:
+                return False
+
+        if data_type == "gateway":
+            gateway_split = data.split(".")
+
+            if len(gateway_split) == 4:
+                for number in gateway_split:
+                    if not number.isnumeric():
+                        raise ValueError("Gateway must contain only numeric values")
+                return True
+            else:
+                raise ValueError("Invalid gateway format")
+
+    def save_information(self, data, data_type):
+        """
+        Save information based on its type (IP address, subnet, or gateway).
+
+        Parameters:
+        - data: The data (string) to be saved.
+        - data_type: The type of data ('ipaddress', 'subnet', 'gateway') to determine how to save.
+
+        Returns:
+        - Boolean: True if data is saved successfully, False otherwise.
+        """
+        if data_type == "ipaddress":
+            self.ip_address = data
+
+        if data_type == "subnet":
+            self.subnet = data
+
+        if data_type == "gateway":
+            self.gateway = data
+
+    def show_information(self, data_type="default"):
+        """
+        Display configuration information.
+
+        Parameters:
+        - data_type: String specifying the type of data to display. Default is 'default', displaying all information.
+        """
+
+        if data_type == "default":
+            print("|{}|{}|{}|".format(self.subnet, self.gateway, self.ip_address))
+
+        if data_type == "ipaddress":
+            print(self.ip_address)
+
+        if data_type == "subnet":
+            return self.subnet
+
+        if data_type == "gateway":
+            return self.gateway
+
+
+class NetworkDevice:
+    """
+    The NetworkDevice class stores information about network devices and the network configuration used.
+
+    Attributes:
+    - device_name: A string that stores the device name.
+    - device_type: A string that stores the device type.
+    - configuration_object: The Configuration object associated with the device.
+    """
+
+    def init(self, device_name, device_type, configuration_object):
+        """
+        Initialize the NetworkDevice object.
+
+        Parameters:
+        - device_name: The name of the device (string).
+        - device_type: The type of the device (string).
+        - configuration_object: The Configuration object storing the configuration for this device.
+        """
+        self.device_name = device_name
+        self.device_type = device_type
+        self.configuration_object = configuration_object
+
+    def display_information(self):
+        """
+        Display device information along with the network configuration used.
+        """
+        print("|{}|{}|{}|{}|{}|".format(self.device_name,
+                                         self.device_type,
+                                         self.configuration_object.subnet,
+                                         self.configuration_object.gateway,
+                                         self.configuration_object.ip_address))
